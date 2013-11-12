@@ -7,7 +7,8 @@ usage() {
       -r	Repository directory (default: /var/www/git)
       -d	Deploy directory (e.g.: /var/www)
       -n	Repository User Name (default: apache)
-      -g	Repository User Group (default: apache)"
+      -g	Repository User Group (default: apache)
+      -u	Repository URL (default: localhost/git)"
 }
 
 git_bare() {
