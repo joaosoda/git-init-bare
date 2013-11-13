@@ -8,7 +8,8 @@ usage() {
       -d	Deploy directory (e.g.: /var/www)
       -n	Repository User Name (default: apache)
       -g	Repository User Group (default: apache)
-      -u	Repository URL (default: localhost/git)"
+      -u	Repository URL (default: localhost/git)
+      -f	Configuration File"
 }
 
 git_bare() {
@@ -36,6 +37,57 @@ git_clone() {
   chmod +x $DEPLOY/$PROJ
 }
 
+##
+# Configuration File
+#
+# Params
+#   PROJ	Project Name
+#   REPO	Repository Directory
+#   DEPLOY	Deployment Directory
+#   USER	User Name
+#   GROUP	User Name
+#   URL 	Clone URL
+#
+# EXAMPLE
+#   PROJ=foobar
+#   REPO=/var/repo
+#   DEPLOY=/var/www/html
+#   USER=www-data
+#   GROUP=www-data
+#   URL=user@git.host
+##
+
+get_config() {
+  if [ -f $1 ]; then
+    IFS="="
+    while read -r key value; do
+      case "${key}" in
+        REPO)
+	  REPO=$value
+          ;;
+        PROJ)
+	  PROJ=$value
+          ;;
+        DEPLOY)
+	  DEPLOY=$value
+          ;;
+        USER)
+	  USER=$value
+          ;;
+        GROUP)
+	  GROUP=$value
+          ;;
+        URL)
+	  URL=$value
+          ;;
+      esac
+    done < $1
+  else
+    echo "File $1 not exists."
+    exit 1
+  fi
+}
+
 for i in $@; do :; done #getting the last arg
 PROJ=$i
 REPO=/var/www/git
@@ -43,30 +95,29 @@ USER=apache
 GROUP=apache
 URL=localhost/git
 
-while getopts "hr:d:n:g:u:" o; do
+
+while getopts "hr:d:n:g:u:f:" o; do
   case "${o}" in
     h)
       usage
       ;;
     r)
       REPO=${OPTARG}
-      echo "Repository: $REPO"
       ;;
     d)
       DEPLOY=${OPTARG}
-      echo "Deploy Directory: $DEPLOY"
       ;; 
     n)
       USER=${OPTARG}
-      echo "User Name: $USER"
       ;;
     g)
       GROUP=${OPTARG}
-      echo "User Group: $GROUP"
       ;;
     u)
       URL=${OPTARG}
-      echo "URL: $URL"
+      ;;
+    f)
+      get_config ${OPTARG}
       ;;
     *)
       usage
@@ -78,9 +129,16 @@ REPOPROJ=$REPO/$PROJ.git
 HOOK=$REPOPROJ/hooks/post-receive
 
 if [ -z "${PROJ}" ]; then
-	usage
-	exit 1
+  usage
+  exit 1
 fi
+
+echo "Project Name: $PROJ"
+echo "Repository: $REPO"
+echo "Deploy Directory: $DEPLOY"
+echo "User Name: $USER"
+echo "Group Name: $GROUP"
+echo "URL: $URL"
 
 git_bare
 hook_edit
