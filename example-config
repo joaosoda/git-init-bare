@@ -1,6 +1,6 @@
-PROJ=test
-REPO=/var/www/git
-DEPLOY=/var/www/
-USER=apache
-GROUP=apache
-URL=localhost/git
+PROJ=foobar
+REPO=/var/repo
+DEPLOY=/var/www/html
+USER=www-data
+GROUP=www-data
+URL=user@git.host
